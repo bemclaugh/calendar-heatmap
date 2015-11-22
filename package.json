@@ -1,0 +1,32 @@
+{
+  "name": "year-calendar",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app/main.jsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "classnames": "^2.2.0",
+    "moment": "^2.10.6",
+    "react": "^0.14.2",
+    "react-dom": "^0.14.2",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "babel-core": "^6.1.21",
+    "babel-loader": "^6.2.0",
+    "babel-preset-react": "^6.1.18",
+    "css-loader": "^0.23.0",
+    "express": "^4.13.3",
+    "http-proxy": "^1.12.0",
+    "node-sass": "^3.4.2",
+    "sass-loader": "^3.1.1",
+    "style-loader": "^0.13.0",
+    "webpack": "^1.12.8",
+    "webpack-dev-server": "^1.12.1"
+  }
+}
