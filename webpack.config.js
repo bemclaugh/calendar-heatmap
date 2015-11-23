@@ -4,6 +4,7 @@ var nodeModulesPath = path.resolve(__dirname, 'node_modules');
 var buildPath = path.resolve(__dirname, 'public', 'build');
 var mainPath = path.resolve(__dirname, 'app', 'main.jsx');
 var sassPath = path.resolve(__dirname, 'app', 'main.scss');
+var colorMaps = path.resolve(nodeModulesPath, 'colormap', 'colorScales.json');
 
 var config = {
   devtool: 'eval',
@@ -16,6 +17,7 @@ var config = {
   },
   module: {
     loaders: [
+      {test: colorMaps, loader: 'json'},
       {test: /\.jsx$/, loader: 'babel-loader', exclude: [nodeModulesPath],query: {presets:['react']}},
       {test: /\.scss$/, loaders: ["style", "css", "sass"]}
     ]

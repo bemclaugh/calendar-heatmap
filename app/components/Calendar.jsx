@@ -3,27 +3,27 @@ var moment = require('moment');
 var _ = require('underscore');
 var classNames = require('classnames');
 require('../main.scss');
+var cmap = require('colormap');
 
 module.exports = React.createClass({
   propTypes: {
     year: React.PropTypes.number.isRequired,
     forceFullWeeks: React.PropTypes.bool,
-    showDaysOfWeek: React.PropTypes.bool,
-    onPickDate: React.PropTypes.func,
-    landscapeOrientation: React.PropTypes.bool
+    selected: React.PropTypes.string
   },
   getDefaultProps: function() {
+    var now = moment();
+    var tableColors = cmap({
+      colormap: 'RdBu',
+      nshades: 100,
+      format: 'rgbaString',
+      alpha: 0.4
+    });
     return {
-      year: moment().year(),
+      year: now.year(),
       forceFullWeeks: false,
-      showDaysOfWeek: true,
-      onPickDate: null,
-      selectedDay: moment(),
-      landscapeOrientation: true
+      selected: now.month() + '_' + now.date()
     };
-  },
-  getInitialState: function() {
-    return({selected: '1_1'}) // change
   },
   monthDays: function() {
     var year = this.props.year;
@@ -37,6 +37,7 @@ module.exports = React.createClass({
       return _.range(1, totalDays + 1).map(function(day, i) {
         var date = moment([year, month, day - prevMonthDaysCount]);
         var calDate = {
+          index: date.month() + '_' + date.date(),
           month: date.month(),
           date : date.date(),
           selected : false,
@@ -65,7 +66,7 @@ module.exports = React.createClass({
     });
   },
   dayClicked: function(id) {
-    this.setState({selected: id});
+    this.setProps({selected: id});
   },
   render: function() {
     var header = this.daysOfWeek();
@@ -81,7 +82,8 @@ module.exports = React.createClass({
             header={header[i]}
             rows={rows}
             selection={this.dayClicked}
-            selected={this.state.selected}
+            selected={this.props.selected}
+            fillData={this.props.fillData}
             />
           );
         }, this)}
@@ -92,7 +94,6 @@ module.exports = React.createClass({
 });
 
 var HeaderRow = React.createClass({
-  //months
   render: function() {
     return (
       <tr>
@@ -106,20 +107,20 @@ var HeaderRow = React.createClass({
 });
 
 var CalendarRow = React.createClass({
-render: function() {
+  render: function() {
     return(
       <tr>
         <td key='1' className='row_header'>{this.props.header}</td>
         {this.props.rows.map(function(row, i) {
-          var dayIndex = row.date + '_' + row.month;
           return(
             <Day
-              id={dayIndex}
+              id={row.index}
               key={i+1}
-              selected={dayIndex === this.props.selected}
+              selected={row.index === this.props.selected}
               otherMonth={row.otherMonth}
               value={row.date}
               onClick={this.props.selection}
+              fillData={this.props.fillData[row.index]}
             />
           );
         }, this)}
@@ -129,16 +130,45 @@ render: function() {
 });
 
 var Day = React.createClass({
+  propTypes: {
+    tableColors: React.PropTypes.array,
+    fillData: React.PropTypes.number
+  },
+  getDefaultProps: function() {
+    var tableColors = cmap({
+      colormap: 'RdBu',
+      nshades: 100,
+      format: 'rgbaString',
+      alpha: 0.4
+    });
+    return({
+      fillData: null,
+      tableColors: tableColors,
+    });
+  },
   selectDay: function() {
     this.props.onClick(this.props.id);
   },
-  render: function() {
-    var dayClasses = classNames({
-      'selected': this.props.selected,
-      'otherMonth': this.props.otherMonth
+  setStyles: function() {
+    return({
+      backgroundColor: this.props.tableColors[this.props.fillData]
     });
+  },
+  render: function() {
+    var dayClasses = classNames(
+      {
+        selected: this.props.selected,
+        otherMonth: this.props.otherMonth
+      }
+    );
     return(
-      <td className={dayClasses} onClick={this.selectDay}>{this.props.value}</td>
+      <td
+        className={dayClasses}
+        onClick={this.selectDay}
+        style={this.setStyles()}
+      >
+      {this.props.value}
+      </td>
     );
   }
 });

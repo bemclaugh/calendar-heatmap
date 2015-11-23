@@ -8,48 +8,35 @@ body {
 
 table.calendar {
   border-collapse: collapse;
-  border: 1px solid lightblue;
-  background-color: aliceblue;
+  border: 1px solid grey;
+  background-color: white;
 }
 
 table.calendar thead {
-  background-color: lightblue;
+  background-color: white;
   margin-bottom: 3px;
-  border-bottom: 2px solid white
 }
 
 table.calendar thead th {
-  font-weight: normal;
-  padding: 10px 3px;
-}
-
-table.calendar thead th.bolder {
   font-weight: bold;
-}
-
-table.calendar tbody {
-  font-size: 0.8em;
+  border: 1px solid grey;
+  padding: 10px;
 }
 
 table.calendar td {
   text-align: center;
-  padding: 8px;
+  padding: 12px;
   cursor: pointer;
-  border: 1px solid lightblue;
-  min-width: 15px;
-}
-
-table.calendar tr:last-child td {
-  border-bottom: none;
+  border: 1px solid grey;
 }
 
 table.calendar td.otherMonth{
-  color: grey;
+  color: lightgray;
   cursor: default;
   pointer-events: none;
 }
 
 table.calendar td.selected {
-  color: red;
   font-weight: bold;
+  color: red;
 }
