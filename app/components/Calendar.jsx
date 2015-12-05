@@ -1,174 +1,130 @@
-var React = require('react');
-var moment = require('moment');
-var _ = require('underscore');
-var classNames = require('classnames');
-require('../main.scss');
-var cmap = require('colormap');
+var React = require('react')
+var moment = require('moment')
+var _ = require('underscore')
+var Day = require('./Day.jsx')
 
 module.exports = React.createClass({
   propTypes: {
     year: React.PropTypes.number.isRequired,
     forceFullWeeks: React.PropTypes.bool,
-    selected: React.PropTypes.string
+    selected: React.PropTypes.bool,
+    selectedDay: React.PropTypes.string,
+    now: React.PropTypes.object,
+    fillData: React.PropTypes.object,
+    fillColor: React.PropTypes.object,
+    labels: React.PropTypes.object
   },
-  getDefaultProps: function() {
-    var now = moment();
-    var tableColors = cmap({
-      colormap: 'RdBu',
-      nshades: 100,
-      format: 'rgbaString',
-      alpha: 0.4
-    });
+  getDefaultProps: function () {
+    var now = moment()
     return {
       year: now.year(),
       forceFullWeeks: false,
-      selected: now.month() + '_' + now.date()
-    };
+      selectedDay: now.year() + '-' + ('0' + (now.month() + 1)).slice(-2) + '-' + ('0' + now.date()).slice(-2),
+      fillColor: {colormap: 'RdBu', nshades: 100, format: 'rgbaString', alpha: 0.15}
+    }
   },
-  monthDays: function() {
-    var year = this.props.year;
-    var forceFullWeeks = this.props.forceFullWeeks;
-    var selectedDay = this.props.selectedDay;
-    var days = _.range(0, 12).map(function(month, i) {
-      var monthStart = moment([year, month, 1]);
-      var prevMonthDaysCount = monthStart.weekday();
-      var numberOfDays = monthStart.daysInMonth();
-      var totalDays = forceFullWeeks ? 42 : 37;
-      return _.range(1, totalDays + 1).map(function(day, i) {
-        var date = moment([year, month, day - prevMonthDaysCount]);
+  monthDays: function () {
+    var days = _.range(0, 12).map(function (month, i) {
+      var monthStart = moment([this.props.year, month, 1])
+      var prevMonthDaysCount = monthStart.weekday()
+      var numberOfDays = monthStart.daysInMonth()
+      var totalDays = this.props.forceFullWeeks ? 42 : 37
+      return _.range(1, totalDays + 1).map(function (day, i) {
+        var date = moment([this.props.year, month, day - prevMonthDaysCount])
         var calDate = {
-          index: date.month() + '_' + date.date(),
+          index: date.year() + '-' + ('0' + (date.month() + 1)).slice(-2) + '-' + ('0' + date.date()).slice(-2),
           month: date.month(),
-          date : date.date(),
-          selected : false,
-          otherMonth: false
-        };
-        if (( day <= prevMonthDaysCount ) || ( day > (numberOfDays + prevMonthDaysCount))) {
-          calDate.otherMonth = true;
+          date: date.date()
         }
-        if (date.isSame(selectedDay, 'day')) {
-          calDate.selected = true;
-        }
-        return calDate;
-      });
-    });
-    return _.zip.apply(_, days);
+        calDate.otherMonth = ((day <= prevMonthDaysCount) || (day > (numberOfDays + prevMonthDaysCount)))
+        calDate.selected = date.isSame(this.props.selectedDay, 'day')
+        return calDate
+      }, this)
+    }, this)
+    return _.zip.apply(_, days)
   },
-  daysOfWeek: function() {
-    var totalDays = this.props.forceFullWeeks? 42: 37;
-    return _.range(totalDays).map(function(i) {
-      return moment().weekday(i).format('dd').charAt(0);
-    });
+  daysOfWeek: function () {
+    var totalDays = this.props.forceFullWeeks ? 42 : 37
+    return _.range(totalDays).map(function (i) {
+      return moment().weekday(i).format('dd').charAt(0)
+    })
   },
-  monthNames: function(year) {
-    return _.range(12).map(function(i) {
-      return moment([year, i, 1]).format('MMM').charAt(0);
-    });
+  monthNames: function (year) {
+    return _.range(12).map(function (i) {
+      return moment([year, i, 1]).format('MMM').charAt(0)
+    })
   },
-  dayClicked: function(id) {
-    this.setProps({selected: id});
+  dayClicked: function (id) {
+    this.setProps({selectedDay: id})
+    console.log('clicked')
   },
-  render: function() {
-    var header = this.daysOfWeek();
-    return(
-      <table className='calendar'>
+  render: function () {
+    return (
+    <table className='calendar'>
       <thead>
-        <HeaderRow labels={this.monthNames(this.props.year)}/>
+        <HeaderRow labels={this.monthNames(this.props.year)} />
       </thead>
       <tbody>
-        {this.monthDays().map(function(rows, i) {
-          return(<CalendarRow
+        {this.monthDays().map(function (rows, i) {
+          return (<CalendarRow
             key={i}
-            header={header[i]}
+            header={this.daysOfWeek()[i]}
             rows={rows}
-            selection={this.dayClicked}
-            selected={this.props.selected}
+            dayClicked={this.dayClicked}
             fillData={this.props.fillData}
-            />
-          );
+            fillColor={this.props.fillColor} />
+          )
         }, this)}
       </tbody>
-      </table>
-    );
+    </table>
+    )
   }
-});
+})
 
 var HeaderRow = React.createClass({
-  render: function() {
+  propTypes: {
+    labels: React.PropTypes.array
+  },
+  render: function () {
     return (
-      <tr>
-      <th>&nbsp;</th>
-      {this.props.labels.map(function(cell, i) {
-        return(<th key={i}>{cell}</th>);
+    <tr>
+      <th></th>
+      {this.props.labels.map(function (cell, i) {
+        return (<th key={i}>{cell}</th>)
       })}
-      </tr>
-    );
+    </tr>
+    )
   }
-});
+})
 
 var CalendarRow = React.createClass({
-  render: function() {
-    return(
-      <tr>
-        <td key='1' className='row_header'>{this.props.header}</td>
-        {this.props.rows.map(function(row, i) {
-          return(
-            <Day
-              id={row.index}
-              key={i+1}
-              selected={row.index === this.props.selected}
-              otherMonth={row.otherMonth}
-              value={row.date}
-              onClick={this.props.selection}
-              fillData={this.props.fillData[row.index]}
-            />
-          );
-        }, this)}
-      </tr>
-    );
-  }
-});
-
-var Day = React.createClass({
   propTypes: {
-    tableColors: React.PropTypes.array,
-    fillData: React.PropTypes.number
+    rows: React.PropTypes.array,
+    header: React.PropTypes.string,
+    dayClicked: React.PropTypes.func,
+    fillData: React.PropTypes.object,
+    fillColor: React.PropTypes.object
   },
-  getDefaultProps: function() {
-    var tableColors = cmap({
-      colormap: 'RdBu',
-      nshades: 100,
-      format: 'rgbaString',
-      alpha: 0.4
-    });
-    return({
-      fillData: null,
-      tableColors: tableColors,
-    });
-  },
-  selectDay: function() {
-    this.props.onClick(this.props.id);
-  },
-  setStyles: function() {
-    return({
-      backgroundColor: this.props.tableColors[this.props.fillData]
-    });
-  },
-  render: function() {
-    var dayClasses = classNames(
-      {
-        selected: this.props.selected,
-        otherMonth: this.props.otherMonth
-      }
-    );
-    return(
-      <td
-        className={dayClasses}
-        onClick={this.selectDay}
-        style={this.setStyles()}
-      >
-      {this.props.value}
+  render: function () {
+    return (
+    <tr>
+      <td key='1' className='row_header'>
+        {this.props.header}
       </td>
-    );
+      {this.props.rows.map(function (row, i) {
+        return (
+         <Day
+           id={row.index}
+           key={i + 1}
+           selected={row.selected}
+           otherMonth={row.otherMonth}
+           value={row.date}
+           onClick={this.props.dayClicked}
+           fillData={this.props.fillData[row.index]}
+           fillColor={this.props.fillColor} />
+         )
+      }, this)}
+    </tr>
+    )
   }
-});
+})
