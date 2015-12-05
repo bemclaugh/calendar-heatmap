@@ -1,14 +1,26 @@
 {
-  "name": "year-calendar",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app/main.jsx",
+  "name": "calendar-heatmap",
+  "version": "1.0.2",
+  "description": "Calendar where the background-color of each day can be color coded giving a heatmap-like overview for the year.",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server"
+    "start": "node server",
+    "build-js": "jsx app/components/Calendar.jsx > main.js",
+    "prepublish": "npm run build-js"
   },
-  "author": "",
+  "author": "Brian E McLaughlin <bemclaugh@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/bemclaugh/calendar-heatmap.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bemclaugh/calendar-heatmap/issues"
+    },
   "license": "ISC",
+  "browserify": {
+    "transform": ["reactify"]
+    },
   "dependencies": {
     "classnames": "^2.2.0",
     "colormap": "^2.0.1",
